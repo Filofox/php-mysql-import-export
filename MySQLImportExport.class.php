@@ -28,7 +28,7 @@ class MySQLImportExport{
 		ini_set('memory_limit', '5120M');
 		set_time_limit ( 0 );
 
-		$this->use_mysqli = false; //class_exists( 'mysqli' );
+		$this->use_mysqli = class_exists( 'mysqli' );
 
 		if( $this->use_mysqli ){
 			$this->connection = new mysqli( $host, $user, $password, $database );
@@ -80,7 +80,6 @@ class MySQLImportExport{
 			$return_string = true;
 			$storage = new MySQLImportExportStorageString();
 		}
-
 		if( $this->use_mysqli ){
 			$this->ExportMysqli( $storage );
 		} else {
@@ -118,22 +117,29 @@ class MySQLImportExport{
 				$storage->Add ( "DROP TABLE IF EXISTS $table;" );
 
 				$result = $this->connection->query( "SHOW CREATE TABLE $table" );
-
 				// Table definition
 				$row2 = $result->fetch_row();
+				$get_data = true;
+				if( preg_match( '~^CREATE (.*)VIEW~Ui', $row2[1] ) ){
+					$row2[1] = preg_replace( '~^CREATE (.*)VIEW~Ui', 'CREATE VIEW', $row2[1] );
+					$get_data = false;
+				}
+
 				$storage->Add( "\n\n".$row2[1].";\n\n" );
 
-				// Now get the data
-				$result = $this->connection->query( "SELECT * FROM $table" );
-				while($row = $result->fetch_row()) {
-					$storage->Add(  "INSERT INTO $table VALUES(" );
-					$fields = array();
-					foreach( $row as $field ){
-						$fields[] = "'" . $this->connection->real_escape_string( $field ) . "'";
+				if( $get_data ){
+					// Now get the data
+					$result = $this->connection->query( "SELECT * FROM $table" );
+					while($row = $result->fetch_row()) {
+						$storage->Add(  "INSERT INTO $table VALUES(" );
+						$fields = array();
+						foreach( $row as $field ){
+							$fields[] = "'" . $this->connection->real_escape_string( $field ) . "'";
+						}
+						$storage->Add( implode( ",", $fields ) . ");\n" );
 					}
-					$storage->Add( implode( ",", $fields ) . ");\n" );
+					$storage->Add ( "\n\n\n" );
 				}
-				$storage->Add ( "\n\n\n" );
 			}
 		}
 		$storage->Close();
@@ -169,19 +175,27 @@ class MySQLImportExport{
 						$this->connection
 					)
 				);
+				$get_data = true;
+				if( preg_match( '~^CREATE (.*)VIEW~Ui', $row2[1] ) ){
+					$row2[1] = preg_replace( '~^CREATE (.*)VIEW~Ui', 'CREATE VIEW', $row2[1] );
+					$get_data = false;
+				}
+
 				$storage->Add( "\n\n".$row2[1].";\n\n" );
 
-				// Now get the data
-				$result = mysql_query( "SELECT * FROM $table", $this->connection );
-				while($row = mysql_fetch_row($result)) {
-					$storage->Add( "INSERT INTO $table VALUES(" );
-					$fields = array();
-					foreach( $row as $field ){
-						$fields[] = "'" . mysql_real_escape_string( $field ) . "'";
+				if( $get_data ){
+					// Now get the data
+					$result = mysql_query( "SELECT * FROM $table", $this->connection );
+					while($row = mysql_fetch_row($result)) {
+						$storage->Add( "INSERT INTO $table VALUES(" );
+						$fields = array();
+						foreach( $row as $field ){
+							$fields[] = "'" . mysql_real_escape_string( $field ) . "'";
+						}
+						$storage->Add( implode( ",", $fields ) . ");\n" );
 					}
-					$storage->Add( implode( ",", $fields ) . ");\n" );
+					$storage->Add( "\n\n\n" );
 				}
-				$storage->Add( "\n\n\n" );
 			}
 		}
 		$storage->Close();
