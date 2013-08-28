@@ -120,8 +120,8 @@ class MySQLImportExport{
 				// Table definition
 				$row2 = $result->fetch_row();
 				$get_data = true;
-				if( preg_match( '~^CREATE (.*)VIEW~Ui', $row2[1] ) ){
-					$row2[1] = preg_replace( '~^CREATE (.*)VIEW~Ui', 'CREATE VIEW', $row2[1] );
+				if( preg_match( '~^CREATE(.*) VIEW~Ui', $row2[1] ) ){
+					$row2[1] = preg_replace( '~^CREATE(.*) VIEW~Ui', 'CREATE VIEW', $row2[1] );
 					$get_data = false;
 				}
 
@@ -176,8 +176,8 @@ class MySQLImportExport{
 					)
 				);
 				$get_data = true;
-				if( preg_match( '~^CREATE (.*)VIEW~Ui', $row2[1] ) ){
-					$row2[1] = preg_replace( '~^CREATE (.*)VIEW~Ui', 'CREATE VIEW', $row2[1] );
+				if( preg_match( '~^CREATE(.*) VIEW~Ui', $row2[1] ) ){
+					$row2[1] = preg_replace( '~^CREATE(.*) VIEW~Ui', 'CREATE VIEW', $row2[1] );
 					$get_data = false;
 				}
 
