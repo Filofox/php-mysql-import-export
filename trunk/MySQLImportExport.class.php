@@ -134,7 +134,13 @@ class MySQLImportExport{
 						$storage->Add(  "INSERT INTO $table VALUES(" );
 						$fields = array();
 						foreach( $row as $field ){
-							$fields[] = "'" . $this->connection->real_escape_string( $field ) . "'";
+							if( $field === null ){
+								$fields[] = "null";
+							} elseif( is_numeric( $field ) ){
+								$fields[] = $field;
+							} else {
+								$fields[] = "'" . $this->connection->real_escape_string( $field ) . "'";
+							}
 						}
 						$storage->Add( implode( ",", $fields ) . ");\n" );
 					}
@@ -190,7 +196,13 @@ class MySQLImportExport{
 						$storage->Add( "INSERT INTO $table VALUES(" );
 						$fields = array();
 						foreach( $row as $field ){
-							$fields[] = "'" . mysql_real_escape_string( $field ) . "'";
+							if( $field === null ){
+								$fields[] = "null";
+							} elseif( is_numeric( $field ) ){
+								$fields[] = $field;
+							} else {
+								$fields[] = "'" . $this->connection->real_escape_string( $field ) . "'";
+							}
 						}
 						$storage->Add( implode( ",", $fields ) . ");\n" );
 					}
