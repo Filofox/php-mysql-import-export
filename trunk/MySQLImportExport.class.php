@@ -26,7 +26,12 @@ class MySQLImportExport{
 	public function __construct( $host, $database, $user, $password )
 	{
 		ini_set('memory_limit', '5120M');
-		set_time_limit ( 0 );
+		
+		$disabled = explode(',', ini_get('disable_functions'));
+		if( !in_array( 'set_time_limit', $disabled) ){
+			set_time_limit( 0 );
+		}
+		
 
 		$this->use_mysqli = class_exists( 'mysqli' );
 
