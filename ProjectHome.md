@@ -1,0 +1,1 @@
+A PHP5 class that makes it simple to import or export MySQL database dumps via code. Native PHP, so there's no reliance on direct access to MySQL commands -- which are restricted on some hosts.
